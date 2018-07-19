@@ -1,3 +1,5 @@
+from __future__ import print_function
+
 from ctypes import *
 from ctypes.util import find_library
 import time
@@ -600,6 +602,26 @@ class Essbase:
     Returns a message list that resulted from executing a MaxL statement.
     """
     def msgs(self, output=sys.stdout):
+        """Return a message list that resulted from executing a MaxL statement and print every message to stdout.
+
+        Each list element is a tuple consisting of level, message number and the message itself.
+
+        Example:
+        >>> esb = Essbase()
+        >>> esb.connect(user, password, host)
+        >>> messages = esb.msgs()
+        [('OK/INFO', 1051034, u'Logging in user [admin@Native Directory]'), ('OK/INFO', 1241001, u'Logged in to Essbase')]
+
+        Level can be one of the following:
+        * OK/INFO
+        * WARNING
+        * ERROR
+        * FATAL
+
+        :param output: output buffer. default is `sys.stdout`.
+        :return: list of tuples of type (level, message number, message)
+        """
+        messages = list()
 
         msgno, level, msg = self.pop_msg()
 
@@ -615,10 +637,15 @@ class Essbase:
                 msglvl = "FATAL"
             else:
                 msglvl = str(level)
-            print ("%8s - %7d - %s." % (msglvl, msgno, msg.decode()))
+
+            print ("%8s - %7d - %s." % (msglvl, msgno, msg.decode()), file=output)
+
+            messages.append((msglvl, msgno, msg.decode()))
+
             msgno, level, msg = self.pop_msg()
 
-        print ('')
+        print ('', file=output)
+        return messages
 
     """------------------------------- execute -------------------------------
     
