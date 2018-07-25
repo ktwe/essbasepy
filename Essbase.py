@@ -601,8 +601,8 @@ class Essbase:
     
     Returns a message list that resulted from executing a MaxL statement.
     """
-    def msgs(self, output=sys.stdout):
-        """Return a message list that resulted from executing a MaxL statement and print every message to stdout.
+    def msgs(self, output=None):
+        """Return a message list that resulted from executing a MaxL statement.
 
         Each list element is a tuple consisting of level, message number and the message itself.
 
@@ -618,7 +618,10 @@ class Essbase:
         * ERROR
         * FATAL
 
-        :param output: output buffer. default is `sys.stdout`.
+        Optionally the parameter `output` can be set to an output buffer (e.g. `sys.stdout`). Every message will then
+        additionally send to this buffer.
+
+        :param output: output buffer. default is `None`..
         :return: list of tuples of type (level, message number, message)
         """
         messages = list()
@@ -638,13 +641,16 @@ class Essbase:
             else:
                 msglvl = str(level)
 
-            print ("%8s - %7d - %s." % (msglvl, msgno, msg.decode()), file=output)
+            if output:
+                print ("%8s - %7d - %s." % (msglvl, msgno, msg.decode()), file=output)
 
             messages.append((msglvl, msgno, msg.decode()))
 
             msgno, level, msg = self.pop_msg()
 
-        print ('', file=output)
+        if output:
+            print ('', file=output)
+
         return messages
 
     """------------------------------- execute -------------------------------
