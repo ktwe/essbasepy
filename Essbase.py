@@ -7,6 +7,9 @@ import sys
 import platform
 import os
 import re
+import logging
+
+logger = logging.getLogger(__name__).addHandler(logging.NullHandler())
 
 BIT64 = platform.architecture()[0] == '64bit'
 
@@ -173,8 +176,7 @@ class Essbase:
             os.environ["ESSBASEPATH"]
             os.environ["PATH"]
         except KeyError as e:
-            print ("environment variable {VAR} not set".format(VAR=e))
-            raise SystemExit
+            raise RuntimeError("environment variable {VAR} not set".format(VAR=e))
         
         # Initialize MaxL API
         inst = maxl_instinit_t()
@@ -182,15 +184,14 @@ class Essbase:
         # Try to find and load the DLL
         __maxldll = find_library('essmaxlu')
         if __maxldll:
-            print ("Using Maxl DLL in {DLLpath}".format(DLLpath = __maxldll))
+            logger.debug("Using Maxl DLL in {DLLpath}".format(DLLpath = __maxldll))
             if "11.1.2.4" in (getFileVerInfo(__maxldll)):
                 MAXL_MDXCELLSTRSZ           = 1024 + 3
             else:
                 MAXL_MDXCELLSTRSZ           = 1024
             self.maxl = cdll.LoadLibrary(__maxldll)
         else:
-            print ("maxl DLL not found")
-            raise SystemExit
+            raise ImportError("maxl DLL not found")
 
         if ESS_UTF:
             inst.bUTFInput = ESS_TRUE
