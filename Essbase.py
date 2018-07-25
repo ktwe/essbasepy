@@ -9,7 +9,8 @@ import os
 import re
 import logging
 
-logger = logging.getLogger(__name__).addHandler(logging.NullHandler())
+logging.getLogger(__name__).addHandler(logging.NullHandler())
+logger = logging.getLogger(__name__)
 
 BIT64 = platform.architecture()[0] == '64bit'
 
